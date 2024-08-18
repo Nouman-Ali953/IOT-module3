@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import face_recognition
 import serial
+from datetime import datetime
 
 # Initialize serial port for Bluetooth communication
 bluetooth_port = 'COM8'  # Change 'COM8' to the correct port for your Bluetooth module
@@ -52,6 +53,13 @@ with open('EncodeFile.p', 'rb') as file:
     encoded_data = pickle.load(file)
 print("Encode File Loaded")
 
+# Function to log data to a file
+def log_data_to_file(name, designation, years_experience):
+    with open('log_file.txt', 'a') as f:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        f.write(f"{timestamp} - Name: {name}, Designation: {designation}, Experience: {years_experience} years\n")
+    print(f"Logged data: {name}, {designation}, {years_experience}")
+
 while True:
     success, img = cap.read()
 
@@ -82,12 +90,15 @@ while True:
                     info_text = f"{name}\n{designation}\n{years_experience} years"
                     send_data_over_bluetooth(
                         name, designation, years_experience)
+                    log_data_to_file(name, designation, years_experience)
                 else:
                     info_text = "Outsider"
                     send_data_over_bluetooth("Outsider", "", "")
+                    log_data_to_file("Outsider", "", "")
             else:
                 info_text = "Outsider"
                 send_data_over_bluetooth("Outsider", "", "")
+                log_data_to_file("Outsider", "", "")
 
             # Draw the text information without the rectangle
             top, right, bottom, left = faceLoc
